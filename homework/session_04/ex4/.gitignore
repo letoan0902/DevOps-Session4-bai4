@@ -1,0 +1,38 @@
+# ============================================================
+# .gitignore - Bai 4, Session 04
+# ============================================================
+
+# --- Nhóm 1: File bí mật, thông tin nhạy cảm (TUYỆT ĐỐI KHÔNG commit) ---
+credentials.txt
+.env
+.env.*
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+# Ngoại lệ: khóa công khai (.pub) thì được phép theo dõi
+!*.pub
+
+# --- Nhóm 2: Log và file tạm ---
+*.log
+*.tmp
+tmp/
+
+# --- Nhóm 3: Thư mục phụ thuộc và build ---
+node_modules/
+__pycache__/
+*.pyc
+dist/
+build/
+venv/
+
+# --- Nhóm 4: File rác của hệ điều hành và IDE ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# --- Nhóm 5: File sao lưu và file tạm của trình soạn thảo ---
+*.bak
+*.swp

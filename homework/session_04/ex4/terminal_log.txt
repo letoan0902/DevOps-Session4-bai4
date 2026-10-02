@@ -1,0 +1,331 @@
+# terminal_log.txt - Bai 4 Session 04 (.gitignore va git commit --amend)
+# Moi lenh duoc chay that trong repo demo, output chep nguyen van.
+# Moi truong: Windows 11, Git Bash, git 2.49.0.windows.1
+
+==== BUOC 0: Chuan bi thu muc demo va kiem tra phien ban git ====
+$ git --version
+git version 2.49.0.windows.1
+
+==== BUOC 1: Khoi tao repo, cau hinh local, commit dau tien ====
+$ git init -b main
+Initialized empty Git repository in D:/Rikkei/DevOps/Session4/_demo/bai4/gitignore-amend-demo/.git/
+
+$ git config user.name 'Lê Toàn'
+
+$ git config user.email 'trinhhanh261293@gmail.com'
+
+$ git config core.autocrlf false
+
+$ git config --local --list | grep -E '^(user|core.autocrlf)'
+core.autocrlf=false
+user.name=Lê Toàn
+user.email=trinhhanh261293@gmail.com
+
+$ printf "# Demo .gitignore va amend\n\nRepo thuc hanh bai 4.\n" > README.md
+
+$ printf 'def main():\n    print("Xin chao DevOps")\n\n\nif __name__ == "__main__":\n    main()\n' > app.py
+
+$ git add README.md app.py
+
+$ git commit -m 'feat: khoi tao du an voi README va app.py'
+[main (root-commit) 8e300d2] feat: khoi tao du an voi README va app.py
+ 2 files changed, 9 insertions(+)
+ create mode 100644 README.md
+ create mode 100644 app.py
+
+$ git log --oneline
+8e300d2 feat: khoi tao du an voi README va app.py
+
+==== BUOC 2: Tai hien su co - vo tinh commit credentials.txt va debug.log ====
+$ cat > credentials.txt <<'EOF'
+DB_USER=demo_user
+DB_PASSWORD=example-not-real
+API_KEY=dummy-key-for-exercise
+EOF
+
+$ printf '[2026-10-02 09:00:00] DEBUG start app\n[2026-10-02 09:00:01] DEBUG loaded config\n' > debug.log
+
+$ git status --short
+?? credentials.txt
+?? debug.log
+
+$ git add .
+
+$ git commit -m 'update'
+[main 9585a29] update
+ 2 files changed, 5 insertions(+)
+ create mode 100644 credentials.txt
+ create mode 100644 debug.log
+
+$ git log --oneline
+9585a29 update
+8e300d2 feat: khoi tao du an voi README va app.py
+
+$ git ls-files
+README.md
+app.py
+credentials.txt
+debug.log
+
+$ git show --stat HEAD
+commit 9585a29de935812e3525658efb8d3033609d2882
+Author: Lê Toàn <trinhhanh261293@gmail.com>
+Date:   Fri Oct 2 12:47:43 2026 +0700
+
+    update
+
+ credentials.txt | 3 +++
+ debug.log       | 2 ++
+ 2 files changed, 5 insertions(+)
+
+==== BUOC 3: Go khoi theo doi nhung giu file (git rm --cached) ====
+$ git rm --cached credentials.txt
+rm 'credentials.txt'
+
+$ git rm --cached debug.log
+rm 'debug.log'
+
+$ git status
+On branch main
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	deleted:    credentials.txt
+	deleted:    debug.log
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	credentials.txt
+	debug.log
+
+
+$ ls -la
+total 16
+drwxr-xr-x 1 gigabyte 197610  0 Oct  2 12:47 .
+drwxr-xr-x 1 gigabyte 197610  0 Oct  2 12:47 ..
+drwxr-xr-x 1 gigabyte 197610  0 Oct  2 12:47 .git
+-rw-r--r-- 1 gigabyte 197610 50 Oct  2 12:47 README.md
+-rw-r--r-- 1 gigabyte 197610 81 Oct  2 12:47 app.py
+-rw-r--r-- 1 gigabyte 197610 78 Oct  2 12:47 credentials.txt
+-rw-r--r-- 1 gigabyte 197610 80 Oct  2 12:47 debug.log
+
+$ cat credentials.txt | head -2
+DB_USER=demo_user
+DB_PASSWORD=example-not-real
+
+==== BUOC 4: Tao .gitignore ====
+$ cat > .gitignore <<'EOF'
+# ============================================================
+# .gitignore - Bai 4, Session 04
+# ============================================================
+
+# --- Nhóm 1: File bí mật, thông tin nhạy cảm (TUYỆT ĐỐI KHÔNG commit) ---
+credentials.txt
+.env
+.env.*
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+# Ngoại lệ: khóa công khai (.pub) thì được phép theo dõi
+!*.pub
+
+# --- Nhóm 2: Log và file tạm ---
+*.log
+*.tmp
+tmp/
+
+# --- Nhóm 3: Thư mục phụ thuộc và build ---
+node_modules/
+__pycache__/
+*.pyc
+dist/
+build/
+venv/
+
+# --- Nhóm 4: File rác của hệ điều hành và IDE ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+EOF
+
+$ git status
+On branch main
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	deleted:    credentials.txt
+	deleted:    debug.log
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.gitignore
+
+
+$ git check-ignore -v credentials.txt debug.log
+.gitignore:6:credentials.txt	credentials.txt
+.gitignore:17:*.log	debug.log
+
+$ git status --ignored --short
+D  credentials.txt
+D  debug.log
+?? .gitignore
+!! credentials.txt
+!! debug.log
+
+==== BUOC 5: Commit voi thong diep chua tot, roi sua bang --amend ====
+$ git add .gitignore
+
+$ git status --short
+A  .gitignore
+D  credentials.txt
+D  debug.log
+
+$ git commit -m 'fix'
+[main 8c870df] fix
+ 3 files changed, 34 insertions(+), 5 deletions(-)
+ create mode 100644 .gitignore
+ delete mode 100644 credentials.txt
+ delete mode 100644 debug.log
+
+$ git log -n 1
+commit 8c870dffb84843061abc3d849cfa3fb1ab9204b9
+Author: Lê Toàn <trinhhanh261293@gmail.com>
+Date:   Fri Oct 2 12:47:46 2026 +0700
+
+    fix
+
+$ git commit --amend -m 'chore: go credentials.txt khoi Git va them .gitignore'
+[main 44bd832] chore: go credentials.txt khoi Git va them .gitignore
+ Date: Fri Oct 2 12:47:46 2026 +0700
+ 3 files changed, 34 insertions(+), 5 deletions(-)
+ create mode 100644 .gitignore
+ delete mode 100644 credentials.txt
+ delete mode 100644 debug.log
+
+$ git log -n 1
+commit 44bd832caed82fd4c143848663006d2c5a7cd635
+Author: Lê Toàn <trinhhanh261293@gmail.com>
+Date:   Fri Oct 2 12:47:46 2026 +0700
+
+    chore: go credentials.txt khoi Git va them .gitignore
+
+$ git log --oneline
+44bd832 chore: go credentials.txt khoi Git va them .gitignore
+9585a29 update
+8e300d2 feat: khoi tao du an voi README va app.py
+
+$ git show --stat HEAD
+commit 44bd832caed82fd4c143848663006d2c5a7cd635
+Author: Lê Toàn <trinhhanh261293@gmail.com>
+Date:   Fri Oct 2 12:47:46 2026 +0700
+
+    chore: go credentials.txt khoi Git va them .gitignore
+
+ .gitignore      | 34 ++++++++++++++++++++++++++++++++++
+ credentials.txt |  3 ---
+ debug.log       |  2 --
+ 3 files changed, 34 insertions(+), 5 deletions(-)
+
+==== BUOC 6: Amend noi dung - quen mot nhom trong .gitignore ====
+$ printf '\n# --- Nhóm 5: File sao lưu và file tạm của trình soạn thảo ---\n*.bak\n*.swp\n' >> .gitignore
+
+$ git status --short
+ M .gitignore
+
+$ git diff
+diff --git a/.gitignore b/.gitignore
+index 71f1601..7003ba2 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -32,3 +32,7 @@ Thumbs.db
+ desktop.ini
+ .vscode/
+ .idea/
++
++# --- Nhóm 5: File sao lưu và file tạm của trình soạn thảo ---
++*.bak
++*.swp
+
+$ git add .gitignore
+
+$ git commit --amend --no-edit
+[main 4fe6a10] chore: go credentials.txt khoi Git va them .gitignore
+ Date: Fri Oct 2 12:47:46 2026 +0700
+ 3 files changed, 38 insertions(+), 5 deletions(-)
+ create mode 100644 .gitignore
+ delete mode 100644 credentials.txt
+ delete mode 100644 debug.log
+
+$ git log -n 1 --stat
+commit 4fe6a10a8e2dcf8c865779bb9f51e0899a86560f
+Author: Lê Toàn <trinhhanh261293@gmail.com>
+Date:   Fri Oct 2 12:47:46 2026 +0700
+
+    chore: go credentials.txt khoi Git va them .gitignore
+
+ .gitignore      | 38 ++++++++++++++++++++++++++++++++++++++
+ credentials.txt |  3 ---
+ debug.log       |  2 --
+ 3 files changed, 38 insertions(+), 5 deletions(-)
+
+$ git reflog -n 5
+4fe6a10 HEAD@{0}: commit (amend): chore: go credentials.txt khoi Git va them .gitignore
+44bd832 HEAD@{1}: commit (amend): chore: go credentials.txt khoi Git va them .gitignore
+8c870df HEAD@{2}: commit: fix
+9585a29 HEAD@{3}: commit: update
+8e300d2 HEAD@{4}: commit (initial): feat: khoi tao du an voi README va app.py
+
+==== BUOC 7: Kiem tra cuoi dung de bai ====
+$ git status
+On branch main
+nothing to commit, working tree clean
+
+$ git log -n 1
+commit 4fe6a10a8e2dcf8c865779bb9f51e0899a86560f
+Author: Lê Toàn <trinhhanh261293@gmail.com>
+Date:   Fri Oct 2 12:47:46 2026 +0700
+
+    chore: go credentials.txt khoi Git va them .gitignore
+
+$ git ls-files
+.gitignore
+README.md
+app.py
+
+$ ls -la
+total 20
+drwxr-xr-x 1 gigabyte 197610   0 Oct  2 12:47 .
+drwxr-xr-x 1 gigabyte 197610   0 Oct  2 12:47 ..
+drwxr-xr-x 1 gigabyte 197610   0 Oct  2 12:47 .git
+-rw-r--r-- 1 gigabyte 197610 749 Oct  2 12:47 .gitignore
+-rw-r--r-- 1 gigabyte 197610  50 Oct  2 12:47 README.md
+-rw-r--r-- 1 gigabyte 197610  81 Oct  2 12:47 app.py
+-rw-r--r-- 1 gigabyte 197610  78 Oct  2 12:47 credentials.txt
+-rw-r--r-- 1 gigabyte 197610  80 Oct  2 12:47 debug.log
+
+$ git check-ignore -v credentials.txt debug.log
+.gitignore:6:credentials.txt	credentials.txt
+.gitignore:17:*.log	debug.log
+
+$ git log --oneline
+4fe6a10 chore: go credentials.txt khoi Git va them .gitignore
+9585a29 update
+8e300d2 feat: khoi tao du an voi README va app.py
+
+==== BUOC 8: Canh bao - file van nam trong commit cu cua lich su ====
+$ git log --oneline --all -- credentials.txt
+4fe6a10 chore: go credentials.txt khoi Git va them .gitignore
+9585a29 update
+
+$ git show 9585a29:credentials.txt
+DB_USER=demo_user
+DB_PASSWORD=example-not-real
+API_KEY=dummy-key-for-exercise
+
+$ git cat-file -t 9585a29
+commit
+
+$ git cat-file -t 8c870df
+commit
+
